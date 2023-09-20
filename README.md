@@ -1,2 +1,2 @@
-npm i install </br>
-npm run start
+`npm i install` </br>
+`npm run start`
