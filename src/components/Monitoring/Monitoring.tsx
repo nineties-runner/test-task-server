@@ -30,6 +30,10 @@ export const Monitoring = () => {
     return res.data;
   };
 
+  const normalizeString = (s: string) => {
+    return s.trim().toLowerCase();
+  };
+
   const updateSearchAttributes = (
     {
       name = searchParams.get("name"),
@@ -43,20 +47,35 @@ export const Monitoring = () => {
     setTypes(Array.from(typesSet));
     res = name
       ? res.filter((item) =>
-          item.name.toLocaleLowerCase().includes(name.toLowerCase())
+          item.name.toLowerCase().includes(name.toLowerCase())
         )
       : res;
     res = tags
-      ? res.filter((item) =>
-          item.tags.toLowerCase().includes(tags.toLowerCase())
-        )
+      ? res.filter((item) => {
+          return item.tags
+            .split(" ")
+            .some((i) => tagsQuery.split(" ").includes(i));
+        })
       : res;
     res = type ? res.filter((item) => item.type === type) : res;
-    setPageAmount(Math.ceil(res.length / 10));
-    setPage(
-      page >= Math.ceil(res.length / 10) ? Math.ceil(res.length / 10) : page
-    );
+    const maxPages =
+      Math.ceil(res.length / 10) !== 0 ? Math.ceil(res.length / 10) : 1;
+    setPageAmount(maxPages);
+    setPage(page >= maxPages ? maxPages : page);
     res = res.slice((page - 1) * 10, page * 10);
+    res =
+      res.length !== 0
+        ? res
+        : [
+            {
+              status: "-",
+              tags: "-",
+              name: "No results found",
+              id: "-",
+              type: "-",
+            },
+          ];
+    console.log(res);
     setData(res);
   };
 
@@ -70,6 +89,17 @@ export const Monitoring = () => {
   return (
     <main className="flex flex-col w-full p-4">
       <div className="flex">
+        <input
+          type="range"
+          name=""
+          id=""
+          value={page}
+          onChange={(e) => setPage(Number(e.target.value))}
+          step={1}
+          min={1}
+          max={5}
+        />
+        {page}
         <input
           className="w-96 h-12 p-4 pl-8 border-none mb-2 bg-slate-200 rounded-l-full focus:outline-none"
           type="text"
@@ -150,10 +180,13 @@ export const Monitoring = () => {
                             className="rounded-md p-2 flex justify-center align-middle h-fit break-words bg-blue-400 cursor-pointer hover:bg-blue-600"
                             onClick={() => {
                               setTagsQuery(
-                                tagsQuery.length
+                                tagsQuery.includes(item)
+                                  ? tagsQuery
+                                  : tagsQuery.length
                                   ? tagsQuery.trimEnd() + ` ${item}`
                                   : item
                               );
+                              setTabOpen(true);
                             }}
                           >
                             {item}
