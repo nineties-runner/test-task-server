@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios, { AxiosResponse } from "axios";
 import { useSearchParams } from "react-router-dom";
+
 import FiltersTab from "../FiltersTab";
 
 type ListItem = {
