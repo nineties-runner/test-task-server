@@ -30,10 +30,6 @@ export const Monitoring = () => {
     return res.data;
   };
 
-  const normalizeString = (s: string) => {
-    return s.trim().toLowerCase();
-  };
-
   const updateSearchAttributes = (
     {
       name = searchParams.get("name"),
@@ -89,17 +85,6 @@ export const Monitoring = () => {
   return (
     <main className="flex flex-col w-full p-4">
       <div className="flex">
-        <input
-          type="range"
-          name=""
-          id=""
-          value={page}
-          onChange={(e) => setPage(Number(e.target.value))}
-          step={1}
-          min={1}
-          max={5}
-        />
-        {page}
         <input
           className="w-96 h-12 p-4 pl-8 border-none mb-2 bg-slate-200 rounded-l-full focus:outline-none"
           type="text"
