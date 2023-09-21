@@ -1,8 +1,9 @@
 import React from "react";
-import SideBar from "./components/SideBar";
-import { menuItems } from "./constants";
-import Monitoring from "./components/Monitoring";
 import { Route, Routes } from "react-router-dom";
+
+import SideBar from "./components/SideBar";
+import Monitoring from "./components/Monitoring";
+import { menuItems } from "./constants";
 
 const App = () => {
   return (
