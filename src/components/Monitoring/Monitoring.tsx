@@ -22,41 +22,48 @@ export const Monitoring = () => {
   const [tabOpen, setTabOpen] = useState<boolean>(false);
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const fetchData = async ({
-    name = searchParams.get("name"),
-    tags = searchParams.get("tags"),
-    type = searchParams.get("type"),
-  }) => {
-    const res: AxiosResponse<ListItem[]> = await axios.get<ListItem[]>(
+  const fetchData = async (): Promise<ListItem[]> => {
+    const res = await axios.get(
       "https://650ab32fdfd73d1fab08b9d1.mockapi.io/api/servers/servers"
     );
+    return res.data;
+  };
+
+  const updateSearchAttributes = (
+    {
+      name = searchParams.get("name"),
+      tags = searchParams.get("tags"),
+      type = searchParams.get("type"),
+    },
+    res: ListItem[]
+  ) => {
     const typesSet = new Set<string>();
-    res.data.map((item) => typesSet.add(item.type));
+    res.map((item) => typesSet.add(item.type));
     setTypes(Array.from(typesSet));
-    res.data = name
-      ? res.data.filter((item) =>
+    res = name
+      ? res.filter((item) =>
           item.name.toLocaleLowerCase().includes(name.toLowerCase())
         )
-      : res.data;
-    res.data = tags
-      ? res.data.filter((item) =>
+      : res;
+    res = tags
+      ? res.filter((item) =>
           item.tags.toLowerCase().includes(tags.toLowerCase())
         )
-      : res.data;
-    res.data = type ? res.data.filter((item) => item.type === type) : res.data;
-    setPageAmount(Math.ceil(res.data.length / 10));
+      : res;
+    res = type ? res.filter((item) => item.type === type) : res;
+    setPageAmount(Math.ceil(res.length / 10));
     setPage(
-      page >= Math.ceil(res.data.length / 10)
-        ? Math.ceil(res.data.length / 10)
-        : page
+      page >= Math.ceil(res.length / 10) ? Math.ceil(res.length / 10) : page
     );
-    res.data = res.data.slice((page - 1) * 10, page * 10);
-
-    setData(res.data);
+    res = res.slice((page - 1) * 10, page * 10);
+    setData(res);
   };
 
   useEffect(() => {
-    fetchData({});
+    (async () => {
+      const data = await fetchData();
+      updateSearchAttributes({}, data);
+    })();
   }, [searchParams, page]);
 
   return (
@@ -140,6 +147,13 @@ export const Monitoring = () => {
                           <div
                             key={index}
                             className="rounded-md p-2 flex justify-center align-middle h-fit break-words bg-blue-400 cursor-pointer hover:bg-blue-600"
+                            onClick={() => {
+                              setTagsQuery(
+                                tagsQuery.length
+                                  ? tagsQuery.trimEnd() + ` ${item}`
+                                  : item
+                              );
+                            }}
                           >
                             {item}
                           </div>
